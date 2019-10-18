@@ -19,12 +19,6 @@ const MovieCard = props => {
           {star}
         </div>
       ))}
-      <button className="edit-button"
-        onClick={
-          () => props.history.push(`/update-movie/${props.movie.id}`)
-        }
-        >EDIT</button>
-        <button>DELETE</button>
     </div>
   );
 };
