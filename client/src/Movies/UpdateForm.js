@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const initialState = {
@@ -8,33 +8,40 @@ const initialState = {
     stars: []
 }
 
-const UpdateForm = props => {
-    const[movie, setMovie] = useState(initialState);
+const UpdateForm = (props) => {
+    const [movie, setMovie] = useState(initialState);
 
     const handleChange = e => {
         e.persist();
-        let value = e.target.value;
-
         setMovie({
             ...movie,
-            [e.target.name]: value
+            [e.target.name]: e.target.value
         })
     }
 
-    const handleSubmit = e => {
+    const editMovie = (e) => {
         e.preventDefault();
         axios
             .put(`http://localhost:5000/api/movies/${movie.id}`, movie)
             .then(res => {
-                props.updateMovies(res.data);
-                props.history.push('/movies');
+                setMovie(res.data);
+                props.history.push(`/`);
             })
-            .catch(err => console.log(err.response));
+            .catch(err => console.log(err.res));
     };
+
+    //const movieToEdit = movies.find(movie => `${movie.id}` === props.match.params.id);
+    useEffect(() => {
+       axios
+        .get(`http://localhost:5000/api/movies/${props.match.params.id}`)
+        .then(res => setMovie(res.data))
+        .catch(err => console.log(err.res))
+    }, [props.match.params.id])
+   
 
     return (
         <div className='update-form'>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={editMovie}>
                 <input 
                     type='text' 
                     name='title' 
@@ -49,6 +56,23 @@ const UpdateForm = props => {
                     placeholder='Director'
                     value={movie.director}
                 />
+                 <input 
+                    type='text' 
+                    name='metascore' 
+                    onChange={handleChange}
+                    placeholder='Metascore'
+                    value={movie.metascore}
+                />
+
+                {movie.stars.map(star => 
+                    <input 
+                    type='text' 
+                    name='stars' 
+                    onChange={handleChange}
+                    placeholder='Stars'
+                    value={star}
+                    />
+                )}  
                 <button>Update</button>
             </form>
         </div>
